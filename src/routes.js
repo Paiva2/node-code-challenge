@@ -37,8 +37,10 @@ export const routes = [
     method: "GET",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
+      const { search } = req.query
+
       try {
-        const tasks = database.select()
+        const tasks = database.select(search)
 
         return res.writeHead(200).end(JSON.stringify(tasks))
       } catch {

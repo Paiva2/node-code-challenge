@@ -41,12 +41,26 @@ export default class Database {
     this.persist()
   }
 
-  select(fieldToPick, queryParam) {
-    if (this.#database.tasks) {
-      return this.#database.tasks
-    } else {
-      throw new Error("Field does not exist.")
+  select(queryParam) {
+    if (!this.#database.tasks.length) throw new Error("Field does not exist.")
+
+    if (queryParam) {
+      const formatQueryParam = queryParam.replaceAll("%20", "")
+
+      const getSearchedTask = this.#database.tasks.filter((task) => {
+        const formatTitles = task.title.replaceAll(/ /g, "")
+
+        return formatTitles
+          .toLowerCase()
+          .includes(formatQueryParam.toLowerCase())
+      })
+
+      return Boolean(getSearchedTask.length)
+        ? getSearchedTask
+        : "Task with this title not found."
     }
+
+    return this.#database.tasks
   }
 
   update(fieldName, idToEdit, newData) {}
