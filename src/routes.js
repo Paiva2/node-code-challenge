@@ -37,13 +37,14 @@ export const routes = [
     method: "GET",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      const { search } = req.query
+      const { title } = req.body ?? {}
 
       try {
-        const tasks = database.select(search)
+        const tasks = database.select(title)
 
         return res.writeHead(200).end(JSON.stringify(tasks))
-      } catch {
+      } catch (e) {
+        console.log(e)
         return res
           .writeHead(404)
           .end(
@@ -64,7 +65,21 @@ export const routes = [
   {
     method: "DELETE",
     path: buildRoutePath("/tasks/:id"),
-    handler: (req, res) => {},
+    handler: (req, res) => {
+      const { id } = req.params
+
+      try {
+        database.delete(id)
+
+        return res
+          .writeHead(200)
+          .end(JSON.stringify("Task deleted successfully."))
+      } catch {
+        return res
+          .writeHead(404)
+          .end(JSON.stringify("Task or field not found."))
+      }
+    },
   },
 
   {

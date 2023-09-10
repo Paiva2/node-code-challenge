@@ -22,8 +22,8 @@ export default class Database {
     fs.writeFile(filePath, JSON.stringify(this.#database))
   }
 
-  insert(fieldName, newData) {
-    const tasks = this.#database[fieldName] ?? []
+  insert(newData) {
+    const tasks = this.#database.tasks ?? []
 
     const newTask = {
       id: crypto.randomUUID(),
@@ -36,22 +36,23 @@ export default class Database {
 
     tasks.push(newTask)
 
-    this.#database[fieldName] = tasks
+    this.#database.tasks = tasks
 
     this.persist()
   }
 
   select(queryParam) {
-    if (!this.#database.tasks.length) throw new Error("Field does not exist.")
+    if (!this.#database.tasks)
+      throw new Error("Field doest not exist, start by creating a new task.")
 
     if (queryParam) {
-      const formatQueryParam = queryParam.replaceAll("%20", "")
+      const formatQueryParam = queryParam?.replaceAll("%20", "")
 
       const getSearchedTask = this.#database.tasks.filter((task) => {
-        const formatTitles = task.title.replaceAll(/ /g, "")
+        const formatTitles = task?.title?.replaceAll(/ /g, "")
 
         return formatTitles
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(formatQueryParam.toLowerCase())
       })
 
@@ -65,7 +66,23 @@ export default class Database {
 
   update(fieldName, idToEdit, newData) {}
 
-  remove(fieldName, idToRemove) {}
+  delete(idToRemove) {
+    if (!this.#database.tasks) {
+      throw new Error("Field doest not exist, start by creating a new task.")
+    }
+
+    const findTaskToRemove = this.#database.tasks.findIndex(
+      (arr) => arr.id === idToRemove
+    )
+
+    if (findTaskToRemove < 0) {
+      throw new Error("Task to remove not found.")
+    }
+
+    this.#database.tasks.splice(findTaskToRemove, 1)
+
+    return this.#database.tasks
+  }
 
   makeComplete(fieldName, idToComplete) {}
 }
