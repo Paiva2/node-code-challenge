@@ -41,7 +41,13 @@ export default class Database {
     this.persist()
   }
 
-  select(fieldToPick, queryParam) {}
+  select(fieldToPick, queryParam) {
+    if (this.#database.tasks) {
+      return this.#database.tasks
+    } else {
+      throw new Error("Field does not exist.")
+    }
+  }
 
   update(fieldName, idToEdit, newData) {}
 

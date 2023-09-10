@@ -23,12 +23,12 @@ export const routes = [
       try {
         database.insert("tasks", data)
 
-        return res.writeHead(200).end("New task created.")
+        return res.writeHead(200).end(JSON.stringify("New task created."))
       } catch (e) {
         console.log(e)
         return res
           .writeHead(500)
-          .end("Failed to create new task, try again later.")
+          .end(JSON.stringify("Failed to create new task, try again later."))
       }
     },
   },
@@ -36,7 +36,21 @@ export const routes = [
   {
     method: "GET",
     path: buildRoutePath("/tasks"),
-    handler: (req, res) => {},
+    handler: (req, res) => {
+      try {
+        const tasks = database.select()
+
+        return res.writeHead(200).end(JSON.stringify(tasks))
+      } catch {
+        return res
+          .writeHead(404)
+          .end(
+            JSON.stringify(
+              "Field doest not exist, start by creating a new task."
+            )
+          )
+      }
+    },
   },
 
   {
