@@ -20,6 +20,12 @@ export const routes = [
     handler: (req, res) => {
       const { data } = req.body;
 
+      if (!data) {
+        return res
+          .writeHead(404)
+          .end(JSON.stringify("Data not found on body requisition."));
+      }
+
       try {
         database.insert("tasks", data);
 
@@ -59,7 +65,31 @@ export const routes = [
   {
     method: "PUT",
     path: buildRoutePath("/tasks/:id"),
-    handler: (req, res) => {},
+    handler: (req, res) => {
+      const { id } = req.params;
+
+      const { title, description } = req.body?.data ?? {};
+
+      if (!title || !description) {
+        return res
+          .writeHead(404)
+          .end(
+            JSON.stringify(
+              "Title and description is required to update an task."
+            )
+          );
+      }
+
+      try {
+        database.updateTask(id, { title, description });
+
+        return res
+          .writeHead(200)
+          .end(JSON.stringify("Task edited successfully."));
+      } catch (e) {
+        return res.writeHead(404).end(JSON.stringify(e.message));
+      }
+    },
   },
 
   {
@@ -67,6 +97,11 @@ export const routes = [
     path: buildRoutePath("/tasks/:id"),
     handler: (req, res) => {
       const { id } = req.params;
+
+      if (!id)
+        return res
+          .writeHead(404)
+          .end(JSON.stringify("ID not found on body requisition."));
 
       try {
         database.delete(id);
@@ -87,6 +122,11 @@ export const routes = [
     path: buildRoutePath("/tasks/:id/complete"),
     handler: (req, res) => {
       const { id } = req.params;
+
+      if (!id)
+        return res
+          .writeHead(404)
+          .end(JSON.stringify("ID not found on body requisition."));
 
       try {
         database.makeComplete(id);

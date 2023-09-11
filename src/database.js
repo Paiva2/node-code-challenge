@@ -72,7 +72,35 @@ export default class Database {
     return this.#database.tasks;
   }
 
-  update(fieldName, idToEdit, newData) {}
+  updateTask(idToEdit, newData) {
+    if (!this.#database.tasks) {
+      throw new Error("Field doest not exist, start by creating a new task.");
+    }
+
+    const findTaskByIndex = this.findTaskByIndex(idToEdit);
+
+    if (findTaskByIndex < 0) {
+      throw new Error("Task to remove not found.");
+    }
+
+    if (this.#database.tasks[findTaskByIndex].completed_at !== null) {
+      throw new Error("Can't edit a completed task.");
+    }
+
+    const editedTask = {
+      ...this.#database.tasks[findTaskByIndex],
+      title: newData.title,
+      description: newData.description,
+    };
+
+    console.log(editedTask);
+
+    this.#database.tasks.splice(findTaskByIndex, 1, editedTask);
+
+    this.persist();
+
+    return this.#database.tasks;
+  }
 
   delete(idToRemove) {
     if (!this.#database.tasks) {
@@ -86,6 +114,8 @@ export default class Database {
     }
 
     this.#database.tasks.splice(findTaskToRemove, 1);
+
+    this.persist();
 
     return this.#database.tasks;
   }
@@ -101,7 +131,7 @@ export default class Database {
       throw new Error("Task to remove not found.");
     }
 
-    if (this.#database.tasks[findTaskByIndex].completed_at === null) {
+    if (this.#database.tasks[findTaskByIndex].completed_at !== null) {
       throw new Error(
         "Can't mark a task as completed if already is completed."
       );
@@ -114,6 +144,8 @@ export default class Database {
     };
 
     this.#database.tasks.splice(findTaskByIndex, 1, completedTask);
+
+    this.persist();
 
     return this.#database.tasks;
   }
