@@ -8,27 +8,27 @@
     updated_at: "Date"
  */
 
-import Database from "./database.js"
-import { buildRoutePath } from "./utils/buildRoutePath.js"
+import Database from "./database.js";
+import { buildRoutePath } from "./utils/buildRoutePath.js";
 
-const database = new Database()
+const database = new Database();
 
 export const routes = [
   {
     method: "POST",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      const { data } = req.body
+      const { data } = req.body;
 
       try {
-        database.insert("tasks", data)
+        database.insert("tasks", data);
 
-        return res.writeHead(200).end(JSON.stringify("New task created."))
+        return res.writeHead(200).end(JSON.stringify("New task created."));
       } catch (e) {
-        console.log(e)
+        console.log(e);
         return res
           .writeHead(500)
-          .end(JSON.stringify("Failed to create new task, try again later."))
+          .end(JSON.stringify("Failed to create new task, try again later."));
       }
     },
   },
@@ -37,21 +37,21 @@ export const routes = [
     method: "GET",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      const { title } = req.body ?? {}
+      const { title } = req.body ?? {};
 
       try {
-        const tasks = database.select(title)
+        const tasks = database.select(title);
 
-        return res.writeHead(200).end(JSON.stringify(tasks))
+        return res.writeHead(200).end(JSON.stringify(tasks));
       } catch (e) {
-        console.log(e)
+        console.log(e);
         return res
           .writeHead(404)
           .end(
             JSON.stringify(
               "Field doest not exist, start by creating a new task."
             )
-          )
+          );
       }
     },
   },
@@ -66,18 +66,18 @@ export const routes = [
     method: "DELETE",
     path: buildRoutePath("/tasks/:id"),
     handler: (req, res) => {
-      const { id } = req.params
+      const { id } = req.params;
 
       try {
-        database.delete(id)
+        database.delete(id);
 
         return res
           .writeHead(200)
-          .end(JSON.stringify("Task deleted successfully."))
+          .end(JSON.stringify("Task deleted successfully."));
       } catch {
         return res
           .writeHead(404)
-          .end(JSON.stringify("Task or field not found."))
+          .end(JSON.stringify("Task or field not found."));
       }
     },
   },
@@ -85,6 +85,18 @@ export const routes = [
   {
     method: "PATCH",
     path: buildRoutePath("/tasks/:id/complete"),
-    handler: (req, res) => {},
+    handler: (req, res) => {
+      const { id } = req.params;
+
+      try {
+        database.makeComplete(id);
+
+        return res
+          .writeHead(200)
+          .end(JSON.stringify("Task marked as complete."));
+      } catch (e) {
+        return res.writeHead(409).end(JSON.stringify(e.message));
+      }
+    },
   },
-]
+];
