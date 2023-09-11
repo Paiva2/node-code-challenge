@@ -27,14 +27,11 @@ export const routes = [
       }
 
       try {
-        database.insert("tasks", data);
+        database.insert(data);
 
         return res.writeHead(200).end(JSON.stringify("New task created."));
       } catch (e) {
-        console.log(e);
-        return res
-          .writeHead(500)
-          .end(JSON.stringify("Failed to create new task, try again later."));
+        return res.writeHead(500).end(JSON.stringify(e.message));
       }
     },
   },

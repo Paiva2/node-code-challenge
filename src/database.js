@@ -31,6 +31,16 @@ export default class Database {
   }
 
   insert(newData) {
+    if (this.#database.tasks) {
+      const taskAlreadyExists = this.#database.tasks.find((task) => {
+        return task.title.includes(newData.title);
+      });
+
+      if (taskAlreadyExists?.completed_at === null) {
+        throw new Error("Task with this title already exists.");
+      }
+    }
+
     const tasks = this.#database.tasks ?? [];
 
     const newTask = {
