@@ -1,17 +1,12 @@
-/* task model:
-
-    id: 1,
-    title: "Random Title",
-    description: "Random desc",
-    completed_at: "Date",
-    created_at: "Date",
-    updated_at: "Date"
- */
-
 import Database from "./database.js";
+import axios from "axios";
 import { buildRoutePath } from "./utils/buildRoutePath.js";
-
+import { parse } from "csv-parse";
+import fs from "node:fs";
 const database = new Database();
+
+const csvPath = new URL("./tasks-csv/tasks.csv", import.meta.url);
+const csvReadStream = fs.createReadStream(csvPath);
 
 export const routes = [
   {
@@ -33,6 +28,43 @@ export const routes = [
       } catch (e) {
         return res.writeHead(500).end(JSON.stringify(e.message));
       }
+    },
+  },
+
+  {
+    method: "POST",
+    path: buildRoutePath("/tasks-csv"),
+    handler: async (_, res) => {
+      const parser = parse({
+        delimiter: ",",
+        skipEmptyLines: true,
+        fromLine: 2,
+      });
+
+      const linesCsv = csvReadStream.pipe(parser);
+
+      try {
+        for await (const record of linesCsv) {
+          const [title, description] = record;
+
+          await axios.post(
+            "http://localhost:3333/tasks",
+            JSON.stringify({ data: { title, description } })
+          );
+        }
+      } catch (e) {
+        return res
+          .writeHead(500)
+          .end(
+            JSON.stringify(
+              "Some task with this title is already registered and not completed."
+            )
+          );
+      }
+
+      return res
+        .writeHead(200)
+        .end(JSON.stringify("New tasks created based on CSV."));
     },
   },
 
