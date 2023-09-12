@@ -78,8 +78,7 @@ export const routes = [
         const tasks = database.select(title);
 
         return res.writeHead(200).end(JSON.stringify(tasks));
-      } catch (e) {
-        console.log(e);
+      } catch {
         return res
           .writeHead(404)
           .end(

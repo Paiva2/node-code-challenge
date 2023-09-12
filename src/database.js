@@ -103,8 +103,6 @@ export default class Database {
       description: newData.description,
     };
 
-    console.log(editedTask);
-
     this.#database.tasks.splice(findTaskByIndex, 1, editedTask);
 
     this.persist();
